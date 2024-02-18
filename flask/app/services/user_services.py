@@ -46,3 +46,11 @@ class UserService:
         update_data = {'$set': {'otp': otp}}
         result = users.update_one(query, update_data)
         return result.modified_count > 0
+
+    @staticmethod
+    def update_secret_key(email, secret_key):
+        users = mongo.db.users
+        query = {'email': email}
+        update_data = {'$set': {'secret_key': secret_key}}
+        result = users.update_one(query, update_data)
+        return result.modified_count > 0
