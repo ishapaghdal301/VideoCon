@@ -8,6 +8,7 @@ const Register = () => {
     first_name: '',
     last_name: '',
     email: '',
+    username: '', 
     password1: '',
     password2: ''
   });
@@ -74,6 +75,13 @@ const Register = () => {
             placeholder="Enter your email"
             name="email"
             value={formData.email}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            placeholder="Enter your username" 
+            name="username"
+            value={formData.username}
             onChange={handleChange}
           />
           <input

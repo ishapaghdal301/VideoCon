@@ -1,4 +1,4 @@
-import React, { useState,useNavigate } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import './style.css';
 
@@ -7,14 +7,13 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
-    const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://127.0.0.1:5000/api/login', { email, password });
       setSuccess(response.data.message);
-      navigate("/dashboard")
+      window.location.href = '/dashboard' ;
     } catch (err) {
       setError(err.response.data.error);
     }
