@@ -19,6 +19,17 @@ const Register = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    
+    if (formData.password1 !== formData.password2) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Passwords do not match',
+        text: 'Please make sure your passwords match',
+        confirmButtonColor: '#d33',
+      });
+      return;
+    }
+
     try {
       const response = await axios.post('http://127.0.0.1:5000/api/register', formData);
       Swal.fire({

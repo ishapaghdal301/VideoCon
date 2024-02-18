@@ -10,7 +10,7 @@ def register():
     # print(data)
     users = User(data['first_name'], data['last_name'], data['email'], data['password1'])
     if data['password1'] != data['password2']:
-        return jsonify({'error': 'Password and Confirm Password are not same'})
+        return jsonify({'error': 'Password and Confirm Password are not same'}), 400
     if not all([users.first_name, users.last_name, users.email, users.password]):
         return jsonify({'error': 'Missing required fields'}), 400
     
