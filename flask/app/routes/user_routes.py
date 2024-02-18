@@ -7,11 +7,9 @@ import secrets
 
 user_bp = Blueprint('user_bp', __name__)
 
-# Function to generate a 4-digit OTP
 def generateOTP():
     return ''.join(random.choices('0123456789', k=4))
 
-# Function to generate a private key
 def generate_private_key(length=32):
     """Generate a random private key."""
     return secrets.token_urlsafe(length)
@@ -19,12 +17,12 @@ def generate_private_key(length=32):
 @user_bp.route('/api/register', methods=['POST'])
 def register():
     data = request.json
+    # print(data)
     if 'password1' not in data or 'password2' not in data:
         return jsonify({'error': 'Password and Confirm Password are required'}), 400
     if data['password1'] != data['password2']:
         return jsonify({'error': 'Password and Confirm Password do not match'}), 400
     
-    # Hash the password before storing it
     hashed_password = bcrypt.hashpw(data['password1'].encode('utf-8'), bcrypt.gensalt())
     
     user = User(
@@ -35,15 +33,16 @@ def register():
         password=hashed_password
     )
 
-    existing_user_email = UserService.get_user_by_email(user.email)
-    existing_user_username = UserService.get_user_by_username(user.username)
-
+    # print(user)
+    existing_user_email = UserService.get_user_by_email(data['email'])
+    existing_user_username = UserService.get_user_by_username(data['username'])
+    # print("After")
     if existing_user_email:
         return jsonify({'error': 'Email already exists'}), 400
     if existing_user_username:
         return jsonify({'error': 'Username already exists'}), 400
 
-    user = UserService.create_user(user.first_name, user.last_name, user.email, user.password, user.username)
+    user = UserService.create_user(user.first_name, user.last_name, user.email, user.username, user.password)
     return jsonify({'message': 'Registration successful', 'user': user.to_json()}), 200
 
 @user_bp.route('/api/login', methods=['POST'])
