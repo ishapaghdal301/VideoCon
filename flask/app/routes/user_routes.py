@@ -1,34 +1,57 @@
 from flask import Blueprint, jsonify, request, session
 from app.services.user_services import UserService
 from app.models.user_model import User
+import bcrypt
 
 user_bp = Blueprint('user_bp', __name__)
 
 @user_bp.route('/api/register', methods=['POST'])
 def register():
     data = request.json
-    # print(data)
-    users = User(data['first_name'], data['last_name'], data['email'], data['password1'])
+    if 'password1' not in data or 'password2' not in data:
+        return jsonify({'error': 'Password and Confirm Password are required'}), 400
     if data['password1'] != data['password2']:
-        return jsonify({'error': 'Password and Confirm Password are not same'}), 400
-    if not all([users.first_name, users.last_name, users.email, users.password]):
-        return jsonify({'error': 'Missing required fields'}), 400
+        return jsonify({'error': 'Password and Confirm Password do not match'}), 400
     
-    existing_user = UserService.get_user_by_email(users.email)
-    if existing_user:
-        return jsonify({'error': 'Email already exists'}), 400
+    # Hash the password before storing it
+    hashed_password = bcrypt.hashpw(data['password1'].encode('utf-8'), bcrypt.gensalt())
+    
+    user = User(
+        first_name=data['first_name'],
+        last_name=data['last_name'],
+        email=data['email'],
+        username=data['username'],
+        password=hashed_password
+    )
 
-    user = UserService.create_user(users.first_name, users.last_name, users.email, users.password)
+    existing_user_email = UserService.get_user_by_email(user.email)
+    existing_user_username = UserService.get_user_by_username(user.username)
+
+    if existing_user_email:
+        return jsonify({'error': 'Email already exists'}), 400
+    if existing_user_username:
+        return jsonify({'error': 'Username already exists'}), 400
+
+    user = UserService.create_user(user.first_name, user.last_name, user.email, user.username, user.password)
     return jsonify({'message': 'Registration successful', 'user': user.to_json()}), 200
 
 @user_bp.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    email = data['email']
-    password = data['password']
+    email = data.get('email')
+    password = data.get('password')
+    username = data.get('username')
     
-    user = UserService.get_user_by_email(email)
-    if user and user.password == password:
+    if not (email or username) or not password:
+        return jsonify({'error': 'Email/Username and password are required'}), 400
+    
+    user = None
+    if email:
+        user = UserService.get_user_by_email(email)
+    elif username:
+        user = UserService.get_user_by_username(username)
+
+    if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
         session['email'] = email
         return jsonify({'message': 'Login successful'}), 200
     else:
