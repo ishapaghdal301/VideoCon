@@ -142,9 +142,7 @@ def verify_otp_login():
     token = jwt.encode({'username': user.username}, private_key, algorithm='HS256')
     
     user.private_key = private_key
-    UserService.update_secret_key(email, private_key)  # Update user's secret key in the database
-    
-    # flask_session['user_id'] = user.id  # Assuming you are using session to maintain login state
+    UserService.update_secret_key(email, private_key)
 
     return jsonify({'message': 'OTP verification successful', 'jwt_token': token}), 200
 
