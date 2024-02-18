@@ -7,8 +7,10 @@ user_bp = Blueprint('user_bp', __name__)
 @user_bp.route('/api/register', methods=['POST'])
 def register():
     data = request.json
-    users = User(data['first_name'], data['last_name'], data['email'], data['password'])
-    
+    # print(data)
+    users = User(data['first_name'], data['last_name'], data['email'], data['password1'])
+    if data['password1'] != data['password2']:
+        return jsonify({'error': 'Password and Confirm Password are not same'})
     if not all([users.first_name, users.last_name, users.email, users.password]):
         return jsonify({'error': 'Missing required fields'}), 400
     
@@ -22,8 +24,8 @@ def register():
 @user_bp.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    email = data.get('email')
-    password = data.get('password')
+    email = data['email']
+    password = data['password']
     
     user = UserService.get_user_by_email(email)
     if user and user.password == password:

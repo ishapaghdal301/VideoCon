@@ -1,8 +1,14 @@
 from flask import Flask
 from flask_pymongo import PyMongo
+from flask_cors import CORS
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = 'mongodb+srv://ISMM:ismm@interviewmap.obh2ylj.mongodb.net/interviewMap'
+CORS(app)
+app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 app.secret_key = 'your_secret_key'
 
 mongo = PyMongo(app)

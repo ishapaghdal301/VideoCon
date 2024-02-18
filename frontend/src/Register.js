@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import './style.css';
 
 const Register = () => {
@@ -20,10 +21,21 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://127.0.0.1:5000/api/register', formData);
+      Swal.fire({
+        icon: 'success',
+        title: 'Registration Successful',
+        text: 'You have successfully registered!',
+        confirmButtonColor: '#3085d6',
+      });
       console.log(response.data);
-      // Redirect user or show success message
     } catch (error) {
       setError(error.response.data.error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: error.response.data.error,
+        confirmButtonColor: '#d33',
+      });
     }
   };
 
