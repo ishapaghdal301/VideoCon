@@ -7,6 +7,7 @@ import Dashboard from "./DashBoard";
 import VideoCall from "./VideoCall";
 import JoinRoom from "./JoinRoom";
 import Compiler from "./Compiler";
+import Canvas from "./Canvas";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/meeting" element={<VideoCall/>}/>
           <Route path="/join_room" element={<JoinRoom/>}/>
           <Route path="/compiler" element={<Compiler/>}/>
+          <Route path="/whiteBoard" element={<Canvas/>}/>
         </Routes>
       </BrowserRouter>
     </div>
