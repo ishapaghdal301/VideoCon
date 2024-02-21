@@ -14,6 +14,7 @@ import AddTestForm from "./AddTestForm";
 import AddProblemForm from "./AddProblemForm";
 import TestList from "./TestList";
 import Test from "./Test";
+import UserPage from "./containers/UserPage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/add-test" element={<AddTestForm />} />
           <Route path="/tests" element={<TestList />} />
           <Route path="/test/:testId" element={<Test />} /> {/* Modified route */}
+          <Route path="/github" element={<UserPage/>}/>
         </Routes>
       </BrowserRouter>
     </div>
