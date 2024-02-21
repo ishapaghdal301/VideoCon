@@ -1,181 +1,162 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import rough from "roughjs/bundled/rough.esm";
+import React, { useRef, useState, useEffect } from "react";
+import "./canvas.css";
+import io from "socket.io-client";
 
-const generator = rough.generator();
-const Canvas = ({
-  canvasRef,
-  ctx,
-  color,
-  setElements,
-  elements,
-  tool,
-  socket,
-}) => {
+const socket = io("http://localhost:8000");
+
+export default function Canvas() {
   const [isDrawing, setIsDrawing] = useState(false);
-  const [allElements, setAllElements] = useState([]); 
+  const [color, setColor] = useState("#00000");
+  const [size, setSize] = useState("3");
+  const canvasRef = useRef(null);
+  const ctx = useRef(null);
+  const timeout = useRef(null);
+  const [cursor, setCursor] = useState("default");
+  const socketRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    canvas.height = window.innerHeight * 2;
-    canvas.width = window.innerWidth * 2;
-    canvas.style.width = `${window.innerWidth}px`;
-    canvas.style.height = `${window.innerHeight}px`;
-    const context = canvas.getContext("2d");
+    ctx.current = canvas.getContext("2d");
 
-    context.strokeWidth = 5;
-    context.scale(2, 2);
-    context.lineCap = "round";
-    context.strokeStyle = color;
-    context.lineWidth = 5;
-    ctx.current = context;
-  }, []);
+    //Resizing
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
 
-  useEffect(() => {
-    ctx.current.strokeStyle = color;
-  }, [color]);
+    socketRef.current = io("http://localhost:8000");
 
-  useEffect(() => {
-    socket.on("canvasImage", (data) => {
-      const image = new Image();
-      image.onload = () => {
-        ctx.current.drawImage(image, 0, 0);
-      };
-      image.src = data;
+    // Listen for drawing events from other clients
+    socketRef.current.on("drawing", async (data) =>{
+      console.log("drawing event litsened by client");
+      // draw(data);
+      const canvas = canvasRef.current;
+      const { offsetX, offsetY , color , size } = await data;
+      ctx.current.lineWidth = size;
+      ctx.current.lineCap = "round";
+      ctx.current.strokeStyle = color;
+
+      ctx.current.lineTo(offsetX, offsetY);
+      ctx.current.stroke();
+      ctx.current.beginPath();
+      ctx.current.moveTo(offsetX, offsetY);
     });
+
   }, []);
 
-
-  const handleMouseDown = (e) => {
-    const { offsetX, offsetY } = e.nativeEvent;
-
-    if (tool === "pencil") {
-      setElements((prevElements) => [
-        ...prevElements,
-        {
-          offsetX,
-          offsetY,
-          path: [[offsetX, offsetY]],
-          stroke: color,
-          element: tool,
-        },
-      ]);
-    } else {
-      setElements((prevElements) => [
-        ...prevElements,
-        { offsetX, offsetY, stroke: color, element: tool },
-      ]);
-    }
-
+  const startPosition = ({ nativeEvent }) => {
     setIsDrawing(true);
+    draw(nativeEvent);
   };
 
-  useLayoutEffect(() => {
-    const roughCanvas = rough.canvas(canvasRef.current);
-    if (elements.length > 0) {
-      ctx.current.clearRect(
-        0,
-        0,
-        canvasRef.current.width,
-        canvasRef.current.height
-      );
-    }
-    elements.forEach((ele, i) => {
-      if (ele.element === "rect") {
-        roughCanvas.draw(
-          generator.rectangle(ele.offsetX, ele.offsetY, ele.width, ele.height, {
-            stroke: ele.stroke,
-            roughness: 0,
-            strokeWidth: 5,
-          })
-        );
-      } else if (ele.element === "line") {
-        roughCanvas.draw(
-          generator.line(ele.offsetX, ele.offsetY, ele.width, ele.height, {
-            stroke: ele.stroke,
-            roughness: 0,
-            strokeWidth: 5,
-          })
-        );
-      } else if (ele.element === "pencil") {
-        roughCanvas.linearPath(ele.path, {
-          stroke: ele.stroke,
-          roughness: 0,
-          strokeWidth: 5,
-        });
-      }
-    });
-    const canvasImage = canvasRef.current.toDataURL();
-    console.log("drawing");
-    socket.emit("drawing", canvasImage);
-  }, [elements]);
+  const finishedPosition = () => {
+    setIsDrawing(false);
+    ctx.current.beginPath();
+  };
 
-  const handleMouseMove = (e) => {
+  const draw = ({ nativeEvent }) => {
+    if (!isDrawing) {
+      console.log("not isdrawing");
+      return;
+    }
+    const canvas = canvasRef.current;
+    const { offsetX, offsetY } = nativeEvent;
+    ctx.current.lineWidth = size;
+    ctx.current.lineCap = "round";
+    ctx.current.strokeStyle = color;
+
+    ctx.current.lineTo(offsetX, offsetY);
+    ctx.current.stroke();
+    ctx.current.beginPath();
+    ctx.current.moveTo(offsetX, offsetY);
+
+    // Emit drawing data to the server
+    socketRef.current.emit(
+      "drawing",
+      {
+        offsetX,
+        offsetY,
+        color,
+        size,
+      },
+      // console.log("emmiting event of drawing")
+    );
+  };
+
+  const clearCanvas = () => {
+    localStorage.removeItem("canvasimg");
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    //Passing clear screen
+    if (timeout.current !== undefined) clearTimeout(timeout.current);
+    timeout.current = setTimeout(function () {
+      var base64ImageData = canvas.toDataURL("image/png");
+      localStorage.setItem("canvasimg", base64ImageData);
+    }, 400);
+  };
+
+  const getPen = () => {
+    setCursor("default");
+    setSize("3");
+    setColor("#3B3B3B");
+  };
+
+  const eraseCanvas = () => {
+    setCursor("grab");
+    setSize("20");
+    setColor("#FFFFFF");
+
     if (!isDrawing) {
       return;
     }
-    const { offsetX, offsetY } = e.nativeEvent;
-
-    if (tool === "rect") {
-      setElements((prevElements) =>
-        prevElements.map((ele, index) =>
-          index === elements.length - 1
-            ? {
-                offsetX: ele.offsetX,
-                offsetY: ele.offsetY,
-                width: offsetX - ele.offsetX,
-                height: offsetY - ele.offsetY,
-                stroke: ele.stroke,
-                element: ele.element,
-              }
-            : ele
-        )
-      );
-    } else if (tool === "line") {
-      setElements((prevElements) =>
-        prevElements.map((ele, index) =>
-          index === elements.length - 1
-            ? {
-                offsetX: ele.offsetX,
-                offsetY: ele.offsetY,
-                width: offsetX,
-                height: offsetY,
-                stroke: ele.stroke,
-                element: ele.element,
-              }
-            : ele
-        )
-      );
-    } else if (tool === "pencil") {
-      setElements((prevElements) =>
-        prevElements.map((ele, index) =>
-          index === elements.length - 1
-            ? {
-                offsetX: ele.offsetX,
-                offsetY: ele.offsetY,
-                path: [...ele.path, [offsetX, offsetY]],
-                stroke: ele.stroke,
-                element: ele.element,
-              }
-            : ele
-        )
-      );
-    }
-  };
-  const handleMouseUp = () => {
-    setIsDrawing(false);
   };
 
   return (
-    <div
-      className="col-md-8 overflow-hidden border border-dark px-0 mx-auto mt-3"
-      style={{ height: "500px" }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-    >
-      <canvas ref={canvasRef} />
-    </div>
+    <>
+      <div className="canvas-btn">
+        <button onClick={getPen} className="btn-width">
+          Pencil
+        </button>
+        <div className="btn-width">
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+          />
+        </div>
+        <div>
+          <select
+            className="btn-width"
+            value={size}
+            onChange={(e) => setSize(e.target.value)}
+          >
+            <option> 1 </option>
+            <option> 3 </option>
+            <option> 5 </option>
+            <option> 10 </option>
+            <option> 15 </option>
+            <option> 20 </option>
+            <option> 25 </option>
+            <option> 30 </option>
+          </select>
+        </div>
+        <button onClick={clearCanvas} className="btn-width">
+          Clear
+        </button>
+        <div>
+          <button onClick={eraseCanvas} className="btn-width">
+            Eras
+          </button>
+        </div>
+      </div>
+      <canvas
+        style={{ cursor: cursor }}
+        onMouseDown={startPosition}
+        onMouseUp={finishedPosition}
+        onMouseMove={draw}
+        ref={canvasRef}
+      />
+    </>
   );
-};
-
-export default Canvas;
+}

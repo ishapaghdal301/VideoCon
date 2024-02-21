@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
+const { log } = require("console");
 
 const app = express();
 const server = http.createServer(app);
@@ -29,17 +30,12 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("outputChange", newOutput);
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
+  socket.on('drawing', (data) => {
+    socket.broadcast.emit('drawing', data);
   });
 
-  socket.on("canvas-data", (data) => {
-    socket.broadcast.emit("canvas-data", data);
-  });
-  socket.on("drawing", (data) => {
-    imageUrl = data;
-    console.log("drawing server");
-    socket.broadcast.emit("canvasImage", imageUrl);
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
   });
 });
 
