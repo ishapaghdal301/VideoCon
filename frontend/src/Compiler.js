@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './compiler.css';
 import Editor from "@monaco-editor/react";
 import Navbar from './Navbar';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:8000'); // Assuming your backend is running on localhost:8000
 
 function Compiler() {
     const [userCode, setUserCode] = useState('');
@@ -16,13 +19,31 @@ function Compiler() {
         fontSize: fontSize
     }
 
+    useEffect(() => {
+        // Listen for changes from other users
+        socket.on('codeChange', (newCode) => {
+            
+            setUserCode(newCode);
+        });
+
+        socket.on('inputChange', (newInput) => {
+            setUserInput(newInput);
+        });
+
+        socket.on('outputChange', (newOutput) => {
+            setUserOutput(newOutput);
+        });
+
+        
+    }, []);
+
     function compile() {
         setLoading(true);
         if (userCode === '') {
             return;
         }
 
-        fetch('http://localhost:8000/compile', {
+        fetch('http://localhost:8080/compile', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -41,6 +62,7 @@ function Compiler() {
             })
             .then(data => {
                 setUserOutput(data.output);
+                socket.emit('outputChange', data.output);
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -52,6 +74,18 @@ function Compiler() {
 
     function clearOutput() {
         setUserOutput("");
+        socket.emit('outputChange', "");
+    }
+
+    function handleCodeChange(newValue) {
+        setUserCode(newValue);
+        socket.emit('codeChange', newValue);
+    }
+
+    function handleInputChange(event) {
+        const newInput = event.target.value;
+        setUserInput(newInput);
+        socket.emit('inputChange', newInput);
     }
 
     return (
@@ -64,13 +98,14 @@ function Compiler() {
             <div className="main">
                 <div className="left-container">
                     <Editor
+                        value={userCode}
                         options={options}
                         height="calc(100vh - 50px)"
                         width="100%"
                         theme={userTheme}
                         language={userLang}
                         defaultValue="# Enter your code here"
-                        onChange={(value) => { setUserCode(value) }}
+                        onChange={handleCodeChange}
                     />
                     <button className="run-btn" onClick={() => compile()}>
                         Run
@@ -79,7 +114,11 @@ function Compiler() {
                 <div className="right-container">
                     <h4>Input:</h4>
                     <div className="input-box">
-                        <textarea id="code-inp" onChange={(e) => setUserInput(e.target.value)}></textarea>
+                        <textarea 
+                            id="code-inp" 
+                            value={userInput} 
+                            onChange={handleInputChange}
+                        ></textarea>
                     </div>
                     <h4>Output:</h4>
                     {loading ? (

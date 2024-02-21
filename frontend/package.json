@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8000/",
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
     "@testing-library/jest-dom": "^5.17.0",
@@ -14,8 +15,14 @@
     "react-router-dom": "^6.22.1",
     "react-scripts": "5.0.1",
     "react-select": "^5.8.0",
+    "react-toastify": "^10.0.4",
+    "roughjs": "^4.6.6",
+    "socket.io-client": "^4.7.4",
     "sweetalert2": "^11.10.5",
     "web-vitals": "^2.1.4",
+    "y-monaco": "^0.1.5",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.12",
     "zego-express-engine-webrtc": "^3.2.0",
     "zego-superboard-web": "^2.15.2"
   },
