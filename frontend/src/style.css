@@ -25,6 +25,21 @@ body {
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
 }
 
+.Add-Problem .container{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 1000px;
+  width: 100%;
+  background: #fff;
+  border-radius: 7px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+.Add-Problem label{
+  font-size: 17px;
+  margin-bottom: 1.3rem;
+}
 .container .form {
   padding: 2rem;
 }
@@ -92,4 +107,19 @@ body {
 
 .signup label:hover {
   text-decoration: underline;
+}
+
+.form textarea {
+  height: 120px;
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 17px;
+  margin-bottom: 1.3rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+}
+
+.form textarea:focus {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
