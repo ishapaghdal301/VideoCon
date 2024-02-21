@@ -8,6 +8,7 @@ import VideoCall from "./VideoCall";
 import JoinRoom from "./JoinRoom";
 import Compiler from "./Compiler";
 import Canvas from "./Canvas";
+import UserPage from "./containers/UserPage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/join_room" element={<JoinRoom/>}/>
           <Route path="/compiler" element={<Compiler/>}/>
           <Route path="/whiteBoard" element={<Canvas/>}/>
+          <Route path="/github" element={<UserPage/>}/>
         </Routes>
       </BrowserRouter>
     </div>
