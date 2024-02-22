@@ -10,11 +10,12 @@ import VideoCall from "./VideoCall";
 import JoinRoom from "./JoinRoom";
 import Compiler from "./Compiler";
 import Canvas from "./Canvas";
-import AddTestForm from "./AddTestForm";
-import AddProblemForm from "./AddProblemForm";
-import TestList from "./TestList";
-import Test from "./Test";
+import AddTestForm from "./Interviewer/AddTestForm";
+import AddProblemForm from "./Interviewer/AddProblemForm";
+import TestList from "./Interviewer/TestList";
+import Test from "./Interviewer/Test";
 import UserPage from "./containers/UserPage";
+import ConductedTest from "./Interviwee/ConductedTest";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/tests" element={<TestList />} />
           <Route path="/test/:testId" element={<Test />} /> {/* Modified route */}
           <Route path="/github" element={<UserPage/>}/>
+          <Route path="/conductedtest/:testId" element={<ConductedTest/>}/>
         </Routes>
       </BrowserRouter>
     </div>

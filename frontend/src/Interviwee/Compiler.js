@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import './compiler.css';
+import './test.css';
 import Editor from "@monaco-editor/react";
-import Navbar from './Navbar';
-import io from 'socket.io-client';
+import CompilerNav from './CompilerNav';
+import axios from 'axios';
 
-const socket = io('http://localhost:8000'); // Assuming your backend is running on localhost:8000
 
-function Compiler() {
+function Compiler({ selectedProblemId }) {
     const [userCode, setUserCode] = useState('');
     const [userLang, setUserLang] = useState("python3");
     const [userTheme, setUserTheme] = useState("vs-dark");
@@ -19,23 +18,6 @@ function Compiler() {
         fontSize: fontSize
     }
 
-    useEffect(() => {
-        // Listen for changes from other users
-        socket.on('codeChange', (newCode) => {
-            
-            setUserCode(newCode);
-        });
-
-        socket.on('inputChange', (newInput) => {
-            setUserInput(newInput);
-        });
-
-        socket.on('outputChange', (newOutput) => {
-            setUserOutput(newOutput);
-        });
-
-        
-    }, []);
 
     function compile() {
         setLoading(true);
@@ -62,7 +44,6 @@ function Compiler() {
             })
             .then(data => {
                 setUserOutput(data.output);
-                socket.emit('outputChange', data.output);
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -74,23 +55,29 @@ function Compiler() {
 
     function clearOutput() {
         setUserOutput("");
-        socket.emit('outputChange', "");
     }
 
     function handleCodeChange(newValue) {
         setUserCode(newValue);
-        socket.emit('codeChange', newValue);
     }
 
     function handleInputChange(event) {
         const newInput = event.target.value;
         setUserInput(newInput);
-        socket.emit('inputChange', newInput);
     }
+
+    const handleSubmitProblem = async () => {
+        try {
+          const response = await axios.post(`http://localhost:8000/api/submitproblem/${selectedProblemId}`);
+        //   setSubmissionResponse(response.data);
+        } catch (error) {
+          console.error('Error submitting problem:', error);
+        }
+      };
 
     return (
         <div className="App">
-            <Navbar
+            <CompilerNav
                 userLang={userLang} setUserLang={setUserLang}
                 userTheme={userTheme} setUserTheme={setUserTheme}
                 fontSize={fontSize} setFontSize={setFontSize}
@@ -107,6 +94,7 @@ function Compiler() {
                         defaultValue="# Enter your code here"
                         onChange={handleCodeChange}
                     />
+                    <button onClick={handleSubmitProblem}>Submit</button>
                     <button className="run-btn" onClick={() => compile()}>
                         Run
                     </button>

@@ -60,4 +60,17 @@ router.post('/tests/:id/add-problem', async (req, res) => {
   }
 });
 
+
+router.get('/problems/:id', async (req, res) => {
+  try {
+    const problem = await Problem.findById(req.params.id);
+    if (problem == null) {
+      return res.status(404).json({ message: 'Problem not found' });
+    }
+    res.json(problem);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

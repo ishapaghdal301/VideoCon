@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import './style.css';
+import '../style.css';
 
 const AddProblemForm = ({ onSubmit }) => {
   const { testId } = useParams();
