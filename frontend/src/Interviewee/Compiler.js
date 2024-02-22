@@ -13,6 +13,11 @@ function Compiler({ selectedProblemId }) {
     const [userInput, setUserInput] = useState("");
     const [userOutput, setUserOutput] = useState("");
     const [loading, setLoading] = useState(false);
+    const [submissionResponse, setSubmissionResponse] = useState(null);
+    
+    useEffect(() => {
+        console.log('Selected problem changed:', selectedProblemId);
+      }, [selectedProblemId]);
 
     const options = {
         fontSize: fontSize
@@ -69,7 +74,7 @@ function Compiler({ selectedProblemId }) {
     const handleSubmitProblem = async () => {
         try {
           const response = await axios.post(`http://localhost:8000/api/submitproblem/${selectedProblemId}`);
-        //   setSubmissionResponse(response.data);
+          setSubmissionResponse(response.data);
         } catch (error) {
           console.error('Error submitting problem:', error);
         }
@@ -123,6 +128,16 @@ function Compiler({ selectedProblemId }) {
                     )}
                 </div>
             </div>
+            {submissionResponse && (
+          <div className="submission-response">
+            <h3>Submission Response</h3>
+            <ul>
+              {Object.entries(submissionResponse).map(([testcase, result]) => (
+                <li key={testcase}>{`${testcase}: ${result}`}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         </div>
     );
 }

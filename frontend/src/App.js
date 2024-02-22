@@ -15,7 +15,7 @@ import AddProblemForm from "./Interviewer/AddProblemForm";
 import TestList from "./Interviewer/TestList";
 import Test from "./Interviewer/Test";
 import UserPage from "./containers/UserPage";
-import ConductedTest from "./Interviwee/ConductedTest";
+import ConductedTest from "./Interviewee/ConductedTest";
 
 function App() {
   return (
