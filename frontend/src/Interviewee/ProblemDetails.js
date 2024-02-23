@@ -1,11 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Compiler from './Compiler';
 
 function ProblemDetails({ selectedProblem }) {
-  useEffect(() => {
-    console.log('Selected problem changed:', selectedProblem);
-  }, [selectedProblem]);
-
   return (
     <div className="main-content">
       {selectedProblem && (

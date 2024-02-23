@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './test.css';
 import Editor from "@monaco-editor/react";
 import CompilerNav from './CompilerNav';
@@ -14,10 +14,6 @@ function Compiler({ selectedProblemId }) {
     const [userOutput, setUserOutput] = useState("");
     const [loading, setLoading] = useState(false);
     const [submissionResponse, setSubmissionResponse] = useState(null);
-    
-    useEffect(() => {
-        console.log('Selected problem changed:', selectedProblemId);
-      }, [selectedProblemId]);
 
     const options = {
         fontSize: fontSize
