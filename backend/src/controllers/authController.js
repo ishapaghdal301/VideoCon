@@ -320,14 +320,27 @@ const viewProfile = async (req, res) => {
     }
 };
 
+const sendEmail = async (req, res) => {
+    try{
+        const { to, subject, text } = req.body;
+        await sendOTPViaEmail(to, subject, text);
+
+        res.status(200).json({ message: 'Email sent successfuly' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
 module.exports = {
     jwtSecret,
     register,
     verifyOTPRegister,
     login,
     verifyOTPLogin,
+    sendEmail,
     changePassword,
     forgotPassword,
     resetPassword,
-    viewProfile
+    viewProfile,
 };
