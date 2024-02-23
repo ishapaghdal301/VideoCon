@@ -43,7 +43,7 @@ function Compiler() {
             return;
         }
 
-        fetch('http://localhost:8000/compile', {
+        fetch('http://localhost:8000/api/compile', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

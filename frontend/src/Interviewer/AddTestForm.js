@@ -10,7 +10,7 @@ const AddTestForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8000/api/add-test', { // Updated endpoint
+      await axios.post('http://localhost:8000/api/tests/add-test', { // Updated endpoint
         title,
         description,
       });
