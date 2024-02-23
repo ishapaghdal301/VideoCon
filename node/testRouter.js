@@ -73,4 +73,45 @@ router.get('/problems/:id', async (req, res) => {
   }
 });
 
+router.post('/submitproblem/:id', async (req, res) => {
+  const { userCode, userLang } = req.body;
+  const selectedProblemId = req.params.id;
+
+  try {
+    // Fetch the problem from the database
+    const problem = await Problem.findById(selectedProblemId);
+
+    if (!problem) {
+      return res.status(404).json({ message: 'Problem not found' });
+    }
+
+    // Initialize result object to store test case results
+    const result = {};
+
+    // Iterate over each test case of the problem
+    for (let i = 0; i < problem.testCases.length; i++) {
+      const testCase = problem.testCases[i];
+
+      // Compile the user code with the provided input
+      const compileResponse = await axios.post('http://localhost:8000/compile', {
+        code: userCode,
+        language: userLang,
+        input: testCase.input
+      });
+
+      if (compileResponse.status === 200 && 'output' in compileResponse.data) {
+        const testCaseResult = compileResponse.data.output.trim() === testCase.output.trim();
+        result[`testcase${i + 1}`] = testCaseResult;
+      } else {
+        result[`testcase${i + 1}`] = false;
+      }
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 module.exports = router;

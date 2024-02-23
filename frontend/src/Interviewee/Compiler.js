@@ -69,7 +69,10 @@ function Compiler({ selectedProblemId }) {
 
     const handleSubmitProblem = async () => {
         try {
-          const response = await axios.post(`http://localhost:8000/api/submitproblem/${selectedProblemId}`);
+            const response = await axios.post(`http://localhost:8000/api/submitproblem/${selectedProblemId}`, {
+                userCode,
+                userLang
+              });
           setSubmissionResponse(response.data);
         } catch (error) {
           console.error('Error submitting problem:', error);
