@@ -8,72 +8,92 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSendOTP = async () => {
+    if (!email || !password) {
+      Swal.fire({
+        icon: "error",
+        title: "Empty Fields",
+        text: "Please fill in both email and password before sending OTP",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/login", {
+      const response = await axios.post("http://127.0.0.1:8000/api/auth/login", {
         emailOrUsername: email,
         password,
       });
-      setSuccess(response.data.message);
       setOtpSent(true);
-    } catch (err) {
-      setError(err.response.data.error);
-    }
-  };
-
-  const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/api/verify_otp_login",
-        { email, otp }
-      );
-      setSuccess(response.data.message);
-      localStorage.setItem("jwt_token", response.data.jwt_token);
-      window.location.href = "/dashboard";
-    } catch (err) {
-      setError(err.response.data.error);
-    }
-  };
-
-  const handleResendOTP = () => {
-    Swal.fire({
-      title: "Resend OTP?",
-      text: "Are you sure you want to resend OTP?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, resend OTP!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          setLoading(true);
-          const response = await axios.post("http://127.0.0.1:5000/api/login", {
-            emailOrUsername: email,
-            password,
-          });
-          setSuccess(response.data.message);
-          setOtpSent(true);
-        } catch (err) {
-          setError(err.response.data.error);
-        } finally {
-          setLoading(false);
-        }
+      Swal.fire({
+        icon: "success",
+        title: "OTP Sent",
+        text: "An OTP has been sent to your email",
+        confirmButtonColor: "#3085d6",
+      });
+    } catch (error) {
+      if (error.response.status === 404) {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "No user found with this email or username",
+          confirmButtonColor: "#d33",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "An unexpected error occurred",
+          confirmButtonColor: "#d33",
+        });
       }
-    });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    try {
+      await axios.post("http://127.0.0.1:8000/api/auth/verify-otp-login", {
+        email,
+        otp,
+      });
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful",
+        text: "You have successfully logged in!",
+        confirmButtonColor: "#3085d6",
+      }).then(() => {
+        window.location.href = "/dashboard";
+      });
+    } catch (error) {
+      if (error.response.status === 400) {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "Invalid OTP",
+          confirmButtonColor: "#d33",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "An unexpected error occurred",
+          confirmButtonColor: "#d33",
+        });
+      }
+    }
   };
 
   return (
     <div className="container">
       <div className="login form">
         <header>Login</header>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           <input
             type="text"
             placeholder="Enter your email"
@@ -86,9 +106,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {!otpSent ? (
-            <input type="submit" className="button" value="Send OTP" />
-          ) : (
+          {otpSent && (
             <>
               <input
                 type="text"
@@ -96,36 +114,21 @@ const Login = () => {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
               />
-              <div className="button-container">
-                <button
-                  className="button"
-                  onClick={handleResendOTP}
-                  disabled={loading}
-                >
-                  {loading ? "Resending OTP..." : "Resend OTP"}
-                </button>
-                <input
-                  type="button"
-                  className="button small-button"
-                  value="Login"
-                  onClick={handleVerifyOTP}
-                />
-              </div>
+              <button className="button" onClick={handleVerifyOTP} disabled={loading}>
+                {loading ? "Verifying OTP..." : "Verify OTP & Login"}
+              </button>
             </>
           )}
-        </form>
-        <center>
-          {success && (
-            <p style={{ color: "green" }}>
-              <b>{success}</b>
-            </p>
+          {!otpSent && (
+            <button className="button" onClick={handleSendOTP} disabled={loading}>
+              {loading ? "Sending OTP..." : "Send OTP"}
+            </button>
           )}
-          {error && <p style={{ color: "red" }}>{error}</p>}
-        </center>
+        </form>
         <div className="signup">
           <span className="signup">
             Don't have an account?
-            <a href="/">
+            <a href="/register">
               <label htmlFor="check">Signup</label>
             </a>
           </span>

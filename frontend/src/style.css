@@ -13,18 +13,6 @@ body {
   /* background: #009579; */
 }
 
-::-webkit-scrollbar {
-  width: 9px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgb(192, 192, 192);
-  border-width: 1px;
-  border-style: solid;
-  border-color: rgb(255, 255, 255);
-  border-radius: 100px;
-}
-
 .container {
   position: absolute;
   top: 50%;
