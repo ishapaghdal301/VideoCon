@@ -5,12 +5,14 @@ import './style.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     username: '',
     password1: '',
     password2: '',
+    phoneNumber: '',
+    role: '',
     otp: '',
   });
   const [error, setError] = useState('');
@@ -22,7 +24,7 @@ const Register = () => {
   };
 
   const handleSendOTP = async () => {
-    if (!formData.email || !formData.username || !formData.password1 || !formData.password2) {
+    if (!formData.email || !formData.username || !formData.password1 || !formData.password2 || !formData.phoneNumber || !formData.role) {
       Swal.fire({
         icon: 'error',
         title: 'Empty Fields',
@@ -32,16 +34,37 @@ const Register = () => {
       return;
     }
 
+    if (formData.password1 !== formData.password2) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Passwords Mismatch',
+        text: 'Passwords do not match',
+        confirmButtonColor: '#d33',
+      });
+      return;
+    }
+
+    if (formData.password1.length < 6) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Weak Password',
+        text: 'Password should be at least 6 characters long',
+        confirmButtonColor: '#d33',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await axios.post('http://127.0.0.1:5000/api/register', {
+      await axios.post('http://127.0.0.1:8000/api/auth/register', {
         email: formData.email,
         username: formData.username,
-        password1: formData.password1,
-        password2: formData.password2,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
+        password: formData.password1,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        role: formData.role,
       });
       setShowOTPField(true);
       Swal.fire({
@@ -51,13 +74,21 @@ const Register = () => {
         confirmButtonColor: '#3085d6',
       });
     } catch (error) {
-      setError(error.response.data.error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Registration Failed',
-        text: error.response.data.error,
-        confirmButtonColor: '#d33',
-      });
+      if (error.response?.data?.msg) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: error.response.data.msg,
+          confirmButtonColor: '#d33',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: 'An unexpected error occurred',
+          confirmButtonColor: '#d33',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -65,11 +96,11 @@ const Register = () => {
 
   const handleRegister = async () => {
     try {
-      await axios.post('http://127.0.0.1:5000/api/verify_otp', {
+      await axios.post('http://127.0.0.1:8000/api/auth/verify-otp-register', {
         email: formData.email,
         otp: formData.otp,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         username: formData.username,
         password1: formData.password1,
         password2: formData.password2,
@@ -83,33 +114,41 @@ const Register = () => {
         window.location.href = '/login';
       });
     } catch (error) {
-      setError(error.response.data.error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Registration Failed',
-        text: error.response.data.error,
-        confirmButtonColor: '#d33',
-      });
+      if (error.response?.data) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: error.response.data.error,
+          confirmButtonColor: '#d33',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: 'An unexpected error occurred',
+          confirmButtonColor: '#d33',
+        });
+      }
     }
   };
 
   return (
     <div className="container">
-      <div className="registration form">
+      <div className="form">
         <header>Signup</header>
         <form onSubmit={e => e.preventDefault()}>
           <input
             type="text"
             placeholder="Enter your first name"
-            name="first_name"
-            value={formData.first_name}
+            name="firstName"
+            value={formData.firstName}
             onChange={handleChange}
           />
           <input
             type="text"
             placeholder="Enter your last name"
-            name="last_name"
-            value={formData.last_name}
+            name="lastName"
+            value={formData.lastName}
             onChange={handleChange}
           />
           <input
@@ -121,6 +160,13 @@ const Register = () => {
           />
           <input
             type="text"
+            placeholder="Enter your phone number"
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
             placeholder="Enter your username"
             name="username"
             value={formData.username}
@@ -128,42 +174,59 @@ const Register = () => {
           />
           <input
             type="password"
-            placeholder="Create a password"
+            placeholder="Enter password"
             name="password1"
             value={formData.password1}
             onChange={handleChange}
           />
           <input
             type="password"
-            placeholder="Confirm your password"
+            placeholder="Confirm password"
             name="password2"
             value={formData.password2}
             onChange={handleChange}
           />
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="input-field"
+          >
+            <option value="">Select Role</option>
+            {formData.username && (
+              <>
+                <option value="interviewer">Interviewer</option>
+                <option value="interviewee">Interviewee</option>
+              </>
+            )}
+          </select>
           {showOTPField && (
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              name="otp"
-              value={formData.otp}
-              onChange={handleChange}
-            />
+            <>
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                name="otp"
+                value={formData.otp}
+                onChange={handleChange}
+              />
+            </>
           )}
           <div className="button-container">
             <button className="button" onClick={handleSendOTP} disabled={loading}>
               {loading ? 'Sending OTP...' : showOTPField ? 'Resend OTP' : 'Send OTP'}
             </button>
-            {showOTPField && (
-              <input type="button" className="button small-button" value="Register" onClick={handleRegister} />
-            )}
           </div>
+          {showOTPField && (
+            <div className="button-container">
+              <input type="button" className="button small-button" value="Register" onClick={handleRegister} />
+            </div>
+          )}
         </form>
         <div className="signup">
           <span className="signup">
             Already have an account?{' '}
             <a href="/login">
-              <label htmlFor="check">Signin</
-              label>
+              Signin
             </a>
           </span>
         </div>

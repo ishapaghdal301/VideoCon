@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         require: true
     },
+    role: {
+        type: String,
+        required: true,
+        enum: ['interviewer', 'interviewee'],
+    },
     password: {
         type: String,
         require: true
@@ -31,6 +36,13 @@ const userSchema = new mongoose.Schema({
         type: Number
     },
     otp: {
+        type: String,
+    },
+    invalidAttempts:{
+        type: Number,
+        default: 0,
+    },
+    private_key: {
         type: String,
     }
 });

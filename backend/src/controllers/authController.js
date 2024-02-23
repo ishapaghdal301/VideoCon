@@ -26,34 +26,64 @@ const generateOTP = () => {
 
 // Controller function to register a new user
 const register = async (req, res) => {
+    // console.log("Before try")
     try {
+        // console.log("Before verify")
         const errors = validationResult(req);
-
+        // console.log("After verify")
+        // console.log(errors)
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
+        // console.log("After verify 2")
+        const { username, email, phoneNumber, password, firstName, lastName, role } = req.body;
 
-        const { username, email, phoneNumber, password, firstName, lastName } = req.body;
-
-        let user = await User.findOne({ username });
+        let user = await User.findOne({ email });
 
         if (user) {
-            return res.status(400).json({ msg: 'User already exists' });
+            if (user.otp !== null) {
+                const OTP = generateOTP();
+                user.otp = OTP;
+                await user.save();
+                await sendOTPViaEmail(user.email, 'Registration OTP', `Your registration OTP is: ${OTP}`);
+                return res.status(200).json({ message: 'OTP verification successful' });
+            }
+            return res.status(400).json({ msg: 'User with this email already exists' });
+        }
+
+        user = await User.findOne({ username });
+
+        if (user) {
+            if (user.otp !== null) {
+                const OTP = generateOTP();
+                user.otp = OTP;
+                await user.save();
+                await sendOTPViaEmail(user.email, 'Registration OTP', `Your registration OTP is: ${OTP}`);
+                return res.status(200).json({ message: 'OTP verification successful' });
+            }
+            return res.status(400).json({ msg: 'User with this username already exists' });
         }
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        const OTP = generateOTP();
+        // console.log("Before Creation")
         user = new User({
             username,
             email,
             phoneNumber,
             password: hashedPassword,
             firstName,
-            lastName
+            lastName,
+            invalidAttempts: 0,
+            otp: OTP,
+            role: role
         });
-
+        // console.log("After Creation")
         await user.save();
+        // console.log("After Saving")
+        await sendOTPViaEmail(user.email, 'Registration OTP', `Your registration OTP is: ${OTP}`);
 
         const token = generateToken(user);
 
@@ -65,7 +95,40 @@ const register = async (req, res) => {
     }
 };
 
-// Controller function to handle user login
+const verifyOTPRegister = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ error: 'Email and OTP are required' });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (user.otp !== otp) {
+            user.invalidAttempts++;
+            await user.save();
+            if(user.invalidAttempts == 3)
+                await User.deleteOne({ email });
+            
+            return res.status(400).json({ error: 'Invalid OTP. User removed from database' });
+        }
+
+        user.invalidAttempts = 0;
+        user.otp = null;
+        await user.save();
+
+        return res.status(200).json({ message: 'OTP verification successful' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
 const login = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -79,7 +142,7 @@ const login = async (req, res) => {
         let user = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
 
         if (!user) {
-            return res.status(400).json({ msg: 'Invalid email or username' });
+            return res.status(404).json({ msg: 'Invalid email or username' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -88,11 +151,49 @@ const login = async (req, res) => {
             return res.status(400).json({ msg: 'Invalid Password' });
         }
 
-        const token = generateToken(user);
+        const OTP = generateOTP();
+        await sendOTPViaEmail(user.email, 'Login OTP', `Your login OTP is: ${OTP}`);
 
-        res.status(200).json({ token });
+        user.otp = OTP;
+        await user.save();
+
+        res.status(200).json({ msg: 'OTP sent to your email' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
     }
-    catch (err) {
+};
+
+
+const verifyOTPLogin = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ error: 'Email and OTP are required' });
+        }
+
+        let user = await User.findOne({ $or: [{ email: email }, { username: email }] });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (user.otp !== otp) {
+            return res.status(400).json({ error: 'Invalid OTP' });
+        }
+
+        // const private_key = generatePrivateKey();
+        // const token = jwt.sign({ username: user.username }, private_key, { algorithm: 'HS256' });
+        
+        user.otp = null;
+        const token = generateToken(user);
+        user.private_key = token;
+
+        await user.save();
+
+        return res.status(200).json({ message: 'OTP verification successful', jwt_token: token });
+    } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
@@ -222,7 +323,9 @@ const viewProfile = async (req, res) => {
 module.exports = {
     jwtSecret,
     register,
+    verifyOTPRegister,
     login,
+    verifyOTPLogin,
     changePassword,
     forgotPassword,
     resetPassword,
