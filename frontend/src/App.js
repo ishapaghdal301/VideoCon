@@ -16,6 +16,10 @@ import Test from './Interviewer/Test';
 import UserPage from './Meeting/containers/UserPage';
 import ConductedTest from './Interviewee/ConductedTest';
 import HostMeeting from './Interviewer/HostMeeting';
+import { PrimeReactProvider } from 'primereact/api';
+import "primereact/resources/themes/lara-light-cyan/theme.css";
+
+
 
 // const MainContainer = styled('div')({
 //     marginLeft: 240, // Adjust this value according to the width of your Sidebar
@@ -24,6 +28,7 @@ import HostMeeting from './Interviewer/HostMeeting';
 
 function App() {
     return (
+        <PrimeReactProvider>
         <div className="App">
             <BrowserRouter>
                 {/* <Sidebar /> */}
@@ -43,10 +48,12 @@ function App() {
                         <Route path="/github" element={<UserPage />} />
                         <Route path="/conductedtest/:testId" element={<ConductedTest />} />
                         <Route path="/host-meeting" element={<HostMeeting />} />
+                        
                     </Routes>
                 {/* </MainContainer> */}
             </BrowserRouter>
         </div>
+        </PrimeReactProvider>
     );
 }
 
