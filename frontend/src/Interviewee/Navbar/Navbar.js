@@ -18,6 +18,7 @@ import axios from "axios";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import "./navbar.css";
 import Footer from "../../Footer";
+import Home from "../Home";
 
 const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -215,6 +216,7 @@ function ResponsiveAppBar() {
         </Toolbar>
       </Container>
     </AppBar>
+    <Home />
     <Footer/>
     </>
   );
