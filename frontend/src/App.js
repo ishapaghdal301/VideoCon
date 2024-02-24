@@ -16,6 +16,7 @@ import TestList from "./Interviewer/TestList";
 import Test from "./Interviewer/Test";
 import UserPage from "./containers/UserPage";
 import ConductedTest from "./Interviewee/ConductedTest";
+import ProctoringComponent from "./Interviewee/ProctoringComponent";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="/test/:testId" element={<Test />} /> {/* Modified route */}
           <Route path="/github" element={<UserPage/>}/>
           <Route path="/conductedtest/:testId" element={<ConductedTest/>}/>
+          <Route path="/proctor" element={<ProctoringComponent/>}/>
         </Routes>
       </BrowserRouter>
     </div>
