@@ -1,0 +1,10 @@
+.app {
+    display: grid;
+    grid-template-columns: auto 1fr; /* Sidebar takes auto width, main content takes rest of the space */
+    height: 100vh; /* Adjust height as needed */
+  }
+  
+  .main-content {
+    overflow-y: auto; /* Enable vertical scrolling if content exceeds viewport */
+  }
+  

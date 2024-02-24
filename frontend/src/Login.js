@@ -128,7 +128,7 @@ const Login = () => {
         <div className="signup">
           <span className="signup">
             Don't have an account?
-            <a href="/register">
+            <a href="/">
               <label htmlFor="check">Signup</label>
             </a>
           </span>

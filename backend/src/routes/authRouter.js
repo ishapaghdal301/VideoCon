@@ -47,4 +47,6 @@ router.post('/verify-otp-login', [
 
 router.post('/profile', authController.viewProfile);
 
+router.post('/send-email', authController.sendEmail);
+
 module.exports = router;
