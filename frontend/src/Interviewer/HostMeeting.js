@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import axios from "axios";
 import Swal from "sweetalert2";
 import "../style.css";
-import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
-
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 function randomID(len) {
     let result = '';
     if (result) return result;
@@ -29,24 +29,24 @@ const HostMeeting = () => {
     const [intervieweeName, setIntervieweeName] = useState('');
     const [intervieweeEmail, setIntervieweeEmail] = useState('');
     const [meetingLink, setMeetingLink] = useState('');
+    const [meetingTime, setMeetingTime] = useState(null);
     const [loading, setLoading] = useState(false);
-
     const handleHostMeeting = async () => {
         setLoading(true);
 
         try {
             const generatedMeetingLink = generateMeetingLink();
 
+            await saveMeetingToDatabase(interviewerEmail, intervieweeEmail, generatedMeetingLink);
             await sendEmail(interviewerEmail, intervieweeEmail, generatedMeetingLink);
-
-            setMeetingLink(generatedMeetingLink);
-
+            
             Swal.fire({
                 icon: "success",
                 title: "Meeting Hosted",
                 text: "The meeting has been successfully hosted!",
                 confirmButtonColor: "#3085d6",
             });
+            window.location.href = '/join_room';
         } catch (error) {
             console.error("Error hosting meeting:", error);
 
@@ -58,6 +58,21 @@ const HostMeeting = () => {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const saveMeetingToDatabase = async (interviewerEmail, intervieweeEmail, meetingLink) => {
+        try {
+            await axios.post("http://127.0.0.1:8000/api/meeting/create-meeting", {
+                interviewerName,
+                interviewerEmail,
+                intervieweeName,
+                intervieweeEmail,
+                meetingLink,
+                meetingTime,
+            });
+        } catch (error) {
+            console.error('Error saving meeting to database:', error);
         }
     };
 
@@ -81,24 +96,6 @@ const HostMeeting = () => {
 
     const generateMeetingLink = () => {
         const roomID = getUrlParams().get('roomID') || randomID(5);
-        const appID = 567250147;
-        const serverSecret = "78ffffac092a0abd8511c4d4f5d27ec8";
-        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, randomID(5), randomID(5));
-        const zp = ZegoUIKitPrebuilt.create(kitToken);
-
-        zp.joinRoom({
-            container: null,
-            sharedLinks: [
-                {
-                    name: 'Personal link',
-                    url: window.location.protocol + '//' + window.location.host + window.location.pathname + '?roomID=' + roomID,
-                },
-            ],
-            scenario: {
-                mode: ZegoUIKitPrebuilt.GroupCall,
-            },
-        });
-
         return window.location.protocol + '//' + window.location.host + window.location.pathname + '?roomID=' + roomID;
     };
 
@@ -130,6 +127,13 @@ const HostMeeting = () => {
                         placeholder="Enter Interviewee's Email"
                         value={intervieweeEmail}
                         onChange={(e) => setIntervieweeEmail(e.target.value)}
+                    />
+                    <DatePicker
+                        selected={meetingTime}
+                        onChange={(date) => setMeetingTime(date)}
+                        showTimeSelect
+                        dateFormat="MMMM d, yyyy h:mm aa"
+                        placeholderText="Enter Meeting Time"
                     />
                     <button className="button" onClick={handleHostMeeting} disabled={loading}>
                         {loading ? "Hosting Meeting..." : "Host Meeting"}
