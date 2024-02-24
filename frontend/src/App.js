@@ -17,17 +17,17 @@ import UserPage from './containers/UserPage';
 import ConductedTest from './Interviewee/ConductedTest';
 import HostMeeting from './Interviewer/HostMeeting';
 
-const MainContainer = styled('div')({
-    marginLeft: 240, // Adjust this value according to the width of your Sidebar
-    flexGrow: 1,
-});
+// const MainContainer = styled('div')({
+//     marginLeft: 240, // Adjust this value according to the width of your Sidebar
+//     flexGrow: 1,
+// });
 
 function App() {
     return (
         <div className="App">
             <BrowserRouter>
-                <Sidebar />
-                <MainContainer>
+                {/* <Sidebar /> */}
+                {/* <MainContainer> */}
                     <Routes>
                         <Route path="/" element={<Register />} />
                         <Route path="/login" element={<Login />} />
@@ -44,7 +44,7 @@ function App() {
                         <Route path="/conductedtest/:testId" element={<ConductedTest />} />
                         <Route path="/host-meeting" element={<HostMeeting />} />
                     </Routes>
-                </MainContainer>
+                {/* </MainContainer> */}
             </BrowserRouter>
         </div>
     );
