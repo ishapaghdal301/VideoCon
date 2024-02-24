@@ -1,12 +1,14 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useState, createContext } from 'react';
 import Sidebar from './SideBar';
 import Register from './Register';
 import Login from './Login';
 import Dashboard from './DashBoard';
 import VideoCall from './Meeting/VideoCall';
 import JoinRoom from './JoinRoom';
+import ResponsiveAppBar from './SideBar';
 import Compiler from './Meeting/CollabrativeCompiler/Compiler';
 import Canvas from './Meeting/Whiteboard/WhiteBoard';
 import AddTestForm from './Interviewer/AddTestForm';
@@ -21,17 +23,25 @@ import "primereact/resources/themes/lara-light-cyan/theme.css";
 
 
 
+
 // const MainContainer = styled('div')({
 //     marginLeft: 240, // Adjust this value according to the width of your Sidebar
 //     flexGrow: 1,
 // });
 
+export const AppContext = createContext();
+
 function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true' || false);
+    const [role, setRole] = useState(localStorage.getItem('role'));
+    const [userName, setUserName] = useState(localStorage.getItem('userName'));
+
     return (
         <PrimeReactProvider>
+            <AppContext.Provider value={{ isLoggedIn, setIsLoggedIn, role, setRole, userName, setUserName }}>
         <div className="App">
             <BrowserRouter>
-                {/* <Sidebar /> */}
+                {isLoggedIn && <ResponsiveAppBar />}
                 {/* <MainContainer> */}
                     <Routes>
                         <Route path="/" element={<Register />} />
@@ -48,11 +58,11 @@ function App() {
                         <Route path="/github" element={<UserPage />} />
                         <Route path="/conductedtest/:testId" element={<ConductedTest />} />
                         <Route path="/host-meeting" element={<HostMeeting />} />
-                        
                     </Routes>
                 {/* </MainContainer> */}
             </BrowserRouter>
         </div>
+        </AppContext.Provider>
         </PrimeReactProvider>
     );
 }
