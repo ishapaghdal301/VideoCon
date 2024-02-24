@@ -17,6 +17,7 @@ import { Dialog } from "primereact/dialog";
 import axios from "axios";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import "./navbar.css";
+import Footer from "../../Footer";
 
 const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -64,6 +65,7 @@ function ResponsiveAppBar() {
   };
 
   return (
+    <>
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
@@ -213,6 +215,8 @@ function ResponsiveAppBar() {
         </Toolbar>
       </Container>
     </AppBar>
+    <Footer/>
+    </>
   );
 }
 export default ResponsiveAppBar;

@@ -20,9 +20,8 @@ import HostMeeting from './Interviewer/HostMeeting';
 import { PrimeReactProvider } from 'primereact/api';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import Navbar from './Interviewee/Navbar/Navbar';
-
-
-
+import Footer from './Footer'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 // const MainContainer = styled('div')({
 //     marginLeft: 240, // Adjust this value according to the width of your Sidebar
@@ -59,6 +58,7 @@ function App() {
                         <Route path="/conductedtest/:testId" element={<ConductedTest />} />
                         <Route path="/host-meeting" element={<HostMeeting />} />
                         <Route path="/interviewee-navbar" element={<Navbar />} />
+                        <Route path="/footer" element={<Footer />} />
                     </Routes>
                 {/* </MainContainer> */}
             </BrowserRouter>
