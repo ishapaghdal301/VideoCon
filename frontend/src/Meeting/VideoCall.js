@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import CreateIcon from "@mui/icons-material/Create";
@@ -8,6 +8,7 @@ import UserPage from "./containers/UserPage";
 import Compiler from "./CollabrativeCompiler/Compiler";
 import Canvas from "./Whiteboard/WhiteBoard";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { AppContext } from '../App';
 
 function randomID(len) {
   let result = "";
@@ -28,6 +29,7 @@ export function getUrlParams(url = window.location.href) {
 }
 
 export default function App() {
+  const { setIsLoggedIn, setRole, setUserName, isLoggedIn, userName } = useContext(AppContext);
   const roomID = getUrlParams().get("roomID") || randomID(5);
   const [showSidebar, setShowSidebar] = useState(false);
   const [isGithubOpen, setIsGithubOpen] = useState(false);
@@ -42,7 +44,8 @@ export default function App() {
       serverSecret,
       roomID,
       randomID(5),
-      randomID(5)
+      randomID(5),
+      userName
     );
 
     const zp = ZegoUIKitPrebuilt.create(kitToken);

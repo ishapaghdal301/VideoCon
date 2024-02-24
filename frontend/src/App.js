@@ -2,7 +2,6 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useState, createContext } from 'react';
-import Sidebar from './SideBar';
 import Register from './Register';
 import Login from './Login';
 import Dashboard from './DashBoard';
@@ -20,6 +19,7 @@ import ConductedTest from './Interviewee/ConductedTest';
 import HostMeeting from './Interviewer/HostMeeting';
 import { PrimeReactProvider } from 'primereact/api';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
+import Navbar from './Interviewee/Navbar/Navbar';
 
 
 
@@ -58,6 +58,7 @@ function App() {
                         <Route path="/github" element={<UserPage />} />
                         <Route path="/conductedtest/:testId" element={<ConductedTest />} />
                         <Route path="/host-meeting" element={<HostMeeting />} />
+                        <Route path="/interviewee-navbar" element={<Navbar />} />
                     </Routes>
                 {/* </MainContainer> */}
             </BrowserRouter>

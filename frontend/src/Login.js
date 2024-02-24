@@ -68,6 +68,7 @@ const Login = () => {
         text: "You have successfully logged in!",
         confirmButtonColor: "#3085d6",
       }).then(() => {
+        
         window.location.href = "/dashboard";
       });
     } catch (error) {

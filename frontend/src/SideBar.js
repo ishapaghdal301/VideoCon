@@ -1,160 +1,311 @@
-import React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+// import { styled, alpha } from '@mui/material/styles';
+import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+// import InputBase from '@mui/material/InputBase';
+import Badge from '@mui/material/Badge';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
+// import SearchIcon from '@mui/icons-material/Search';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+// import AdbIcon from '@mui/icons-material/Adb';
+import { AppContext } from './App';
+import { useState, useContext } from 'react';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
-const drawerWidth = 240;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-    ({ theme, open }) => ({
-        flexGrow: 1,
-        padding: theme.spacing(3),
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-        marginLeft: `-${drawerWidth}px`,
-        ...(open && {
-            transition: theme.transitions.create('margin', {
-                easing: theme.transitions.easing.easeOut,
-                duration: theme.transitions.duration.enteringScreen,
-            }),
-            marginLeft: 0,
-        }),
-    }),
-);
+const pages = [
+   { name: "Host a Meeting", path: "/host-meeting" },
+   { name: "Join a Meeting", path: "/join_room" },
+   { name: "Create Test", path: "/add-test" },
+];
 
-const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-    transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    }),
-}));
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
-}));
+const ResponsiveAppBar = () => {
+   const role = localStorage.getItem('role');
+   const { setIsLoggedIn, setRole, setUserName, isLoggedIn, userName } = useContext(AppContext);
+   const settings = ["Profile", "Your Meetings", "Logout"];
+   // const { isLoggedIn, userName } = useContext(AppContext);
+   const [anchorElNav, setAnchorElNav] = useState(null);
+   const [anchorElUser, setAnchorElUser] = useState(null);
+   const [anchorElNotifications, setAnchorElNotifications] = useState(null);
+   const handleOpenNavMenu = (event) => {
+       setAnchorElNav(event.currentTarget);
+   };
 
-const SidebarContainer = styled(Box)({
-    backgroundColor: '#37474f', // Adjusted background color
-    color: 'white',
-});
 
-const SidebarText = styled(Typography)({
-    color: 'white',
-});
+   const handleOpenUserMenu = (event) => {
+       setAnchorElUser(event.currentTarget);
+   };
 
-const SidebarListItem = styled(ListItem)({
-    '&:hover': {
-        backgroundColor: '#263238', // Adjusted hover background color
-    },
-});
 
-export default function Sidebar() {
-    const theme = useTheme();
-    const [open, setOpen] = React.useState(true);
+   const handleOpenNotifications = (event) => {
+       setAnchorElNotifications(event.currentTarget);
+   };
 
-    const handleDrawerOpen = () => {
-        setOpen(true);
-    };
 
-    const handleDrawerClose = () => {
-        setOpen(false);
-    };
+   const handleCloseNavMenu = (page) => {
+       setAnchorElNav(null);
+       const selectedPage = pages.find((p) => p.name === page);
+       if (selectedPage) {
+           window.location.href = selectedPage.path;
+       }
+   };
 
-    const mainLinks = [
-        { text: 'Host a Meeting', route: '/host-meeting' },
-        { text: 'New Meeting', route: '/meeting' },
-        { text: 'Join Meeting', route: '/join_room' }
-    ];
 
-    const handleItemClick = (route) => {
-        window.location.href = route;
-    };
+   const handleCloseUserMenu = (setting) => {
+       setAnchorElUser(null);
 
-    return (
-        <SidebarContainer sx={{ display: 'flex' }}>
-            <CssBaseline />
-            <AppBar position="fixed" open={open}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        sx={{ mr: 2, ...(open && { display: 'none' }) }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <SidebarText variant="h6" noWrap component="div">Videocon</SidebarText>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                        backgroundColor: '#37474f', // Adjusted background color
-                        color: 'white',
-                    },
-                }}
-                variant="persistent"
-                anchor="left"
-                open={open}
-            >
-                <DrawerHeader>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                    </IconButton>
-                </DrawerHeader>
-                <Divider />
-                <List>
-                    {mainLinks.map((link) => (
-                        <SidebarListItem key={link.text} disablePadding onClick={() => handleItemClick(link.route)}>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <InboxIcon />
-                                </ListItemIcon>
-                                <ListItemText primary={link.text} />
-                            </ListItemButton>
-                        </SidebarListItem>
-                    ))}
-                </List>
-            </Drawer>
-            <Main open={open}>
-                <DrawerHeader />
-            </Main>
-        </SidebarContainer>
-    );
-}
+
+       if (setting === 'User Profile') {
+           window.location.href = `/profile/${userName}`;
+       } else if (setting === 'Logout') {
+           localStorage.removeItem('userName');
+           localStorage.removeItem('role');
+           localStorage.removeItem('isLoggedIn');
+           localStorage.removeItem('password');
+           localStorage.removeItem('email');
+           setUserName(null);
+           setRole('');
+           setIsLoggedIn(false);
+           window.location.href = '/login';
+       }
+   };
+
+
+
+
+   const handleCloseNotifications = () => {
+       setAnchorElNotifications(null);
+   };
+
+
+   const handleLogin = () => {
+       window.location.href = "/login";
+   };
+
+
+   const handleSignUp = () => {
+       window.location.href = "/register";
+   };
+
+
+   return (
+       <>
+           <AppBar position="fixed">
+               <Container maxWidth="xl">
+                   <Toolbar disableGutters>
+                       {/* <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
+                       <Typography
+                           variant="h6"
+                           noWrap
+                           component="a"
+                           href="/"
+                           sx={{
+                               mr: { xs: 1, md: 2 },
+                               display: { xs: 'none', md: 'flex' },
+                               fontFamily: 'monospace',
+                               fontWeight: 700,
+                               color: 'inherit',
+                               textDecoration: 'none',
+                           }}
+                       >
+                           InterviewMap
+                       </Typography>
+
+
+                       <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                           <IconButton
+                               size="large"
+                               aria-label="account of current user"
+                               aria-controls="menu-appbar"
+                               aria-haspopup="true"
+                               onClick={handleOpenNavMenu}
+                               color="inherit"
+                           >
+                               <MenuIcon />
+                           </IconButton>
+                           <Menu
+                               id="menu-appbar"
+                               anchorEl={anchorElNav}
+                               anchorOrigin={{
+                                   vertical: 'bottom',
+                                   horizontal: 'left',
+                               }}
+                               keepMounted
+                               transformOrigin={{
+                                   vertical: 'top',
+                                   horizontal: 'left',
+                               }}
+                               open={Boolean(anchorElNav)}
+                               onClose={() => handleCloseNavMenu()}
+                               sx={{
+                                   display: { xs: 'block', md: 'none' },
+                               }}
+                           >
+                               {pages.map((page) => (
+                                   <MenuItem key={page.name} onClick={() => handleCloseNavMenu(page.name)}>
+                                       <Typography textAlign="center">{page.name}</Typography>
+                                   </MenuItem>
+                               ))}
+                           </Menu>
+                       </Box>
+                       {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
+                       <Typography
+                           variant="h6"
+                           noWrap
+                           component="a"
+                           href="#app-bar-with-responsive-menu"
+                           sx={{
+                               mr: { xs: 2, md: 4 },
+                               display: { xs: 'flex', md: 'none' },
+                               flexGrow: 1,
+                               fontFamily: 'monospace',
+                               fontWeight: 700,
+                               letterSpacing: '.3rem',
+                               color: 'inherit',
+                               textDecoration: 'none',
+                           }}
+                       >
+                           InterviewMap
+                       </Typography>
+                       <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                           {pages.map((page) => (
+                               <Button
+                                   key={page.name}
+                                   onClick={() => handleCloseNavMenu(page.name)}
+                                   sx={{ my: { xs: 1, md: 2 }, color: 'white', display: 'block' }}
+                               >
+                                   {page.name}
+                               </Button>
+                           ))}
+                       </Box>
+
+
+                       {/* Search Bar */}
+                       {/* <Search>
+                           <SearchIconWrapper>
+                               <SearchIcon />
+                           </SearchIconWrapper>
+                           <StyledInputBase
+                               placeholder="Search…"
+                               inputProps={{ 'aria-label': 'search' }}
+                           />
+                       </Search> */}
+
+
+                       {/* {isLoggedIn && (
+                           <Box sx={{ flexGrow: 0, marginLeft: { xs: 0, md: 2 }, marginRight: 4 }}>
+                               <Tooltip title="Open notifications">
+                                   <IconButton onClick={handleOpenNotifications} sx={{ p: 0 }}>
+                                       <Badge badgeContent={4} color="error">
+                                           <NotificationsIcon />
+                                       </Badge>
+                                   </IconButton>
+                               </Tooltip>
+                               <Menu
+                                   sx={{ mt: { xs: 2, md: '45px' } }}
+                                   id="menu-notifications"
+                                   anchorEl={anchorElNotifications}
+                                   anchorOrigin={{
+                                       vertical: 'top',
+                                       horizontal: 'right',
+                                   }}
+                                   keepMounted
+                                   transformOrigin={{
+                                       vertical: 'top',
+                                       horizontal: 'right',
+                                   }}
+                                   open={Boolean(anchorElNotifications)}
+                                   onClose={handleCloseNotifications}
+                               >
+                                   <MenuItem>
+                                       <Typography textAlign="center">Messages</Typography>
+                                   </MenuItem>
+                                   <MenuItem>
+                                       <Typography textAlign="center">Notifications</Typography>
+                                   </MenuItem>
+                               </Menu>
+                           </Box>
+                       )} */}
+
+
+                       {isLoggedIn && (
+                           <Box sx={{ flexGrow: 0 }}>
+                               <Tooltip title="Open settings">
+                                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                       <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                   </IconButton>
+                               </Tooltip>
+                               <Menu
+                                   sx={{ mt: { xs: 2, md: '45px' } }}
+                                   id="menu-appbar"
+                                   anchorEl={anchorElUser}
+                                   anchorOrigin={{
+                                       vertical: 'top',
+                                       horizontal: 'right',
+                                   }}
+                                   keepMounted
+                                   transformOrigin={{
+                                       vertical: 'top',
+                                       horizontal: 'right',
+                                   }}
+                                   open={Boolean(anchorElUser)}
+                                   onClose={() => handleCloseUserMenu()}
+                               >
+                                   {settings.map((setting) => (
+                                       <MenuItem key={setting} onClick={() => handleCloseUserMenu(setting)}>
+                                           {/* Use a conditional rendering approach based on the selected setting */}
+                                           {setting === 'User Profile' && (
+                                               <a href={`/profile/${userName}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                   {setting}
+                                               </a>
+                                           )}
+                                           {setting === `${role} Profile` && (
+                                               <a href={`/profile-role/${userName}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                   {setting}
+                                               </a>
+                                           )}
+                                           {setting === 'Your Appointments' && (
+                                               <a href={`/my-appointments/${userName}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                   {setting}
+                                               </a>
+                                           )}
+                                           {setting === 'Logout' && (
+                                               <a href={`/login`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                   {setting}
+                                               </a>
+                                           )}
+                                       </MenuItem>
+                                   ))}
+                               </Menu>
+
+
+                           </Box>
+                       )}
+                       {!isLoggedIn && (
+                           <>
+                               <Button color="inherit" onClick={handleLogin}>
+                                   Login
+                               </Button>
+                               <Button color="inherit" onClick={handleSignUp}>
+                                   SignUp
+                               </Button>
+                           </>
+                       )}
+                   </Toolbar>
+               </Container>
+           </AppBar>
+           <Box sx={{ mb: 10 }} />
+       </>
+   );
+};
+
+
+export default ResponsiveAppBar;
