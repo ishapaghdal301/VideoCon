@@ -72,12 +72,12 @@ function Compiler({ selectedProblemId }) {
             const response = await axios.post(`http://localhost:8000/api/submitproblem/${selectedProblemId}`, {
                 userCode,
                 userLang
-              });
-          setSubmissionResponse(response.data);
+            });
+            setSubmissionResponse(response.data);
         } catch (error) {
-          console.error('Error submitting problem:', error);
+            console.error('Error submitting problem:', error);
         }
-      };
+    };
 
     return (
         <div className="compiler-container">
@@ -98,6 +98,7 @@ function Compiler({ selectedProblemId }) {
                         defaultValue="# Enter your code here"
                         onChange={handleCodeChange}
                     />
+                    <button className="run-btn1" onClick={handleSubmitProblem}>Submit</button>
                     <button className="run-btn1" onClick={() => compile()}>
                         Run
                     </button>
@@ -105,9 +106,9 @@ function Compiler({ selectedProblemId }) {
                 <div className="right-container1">
                     <h3>Input:</h3>
                     <div className="input-box">
-                        <textarea 
-                            id="code-inp" 
-                            value={userInput} 
+                        <textarea
+                            id="code-inp"
+                            value={userInput}
                             onChange={handleInputChange}
                         ></textarea>
                     </div>
@@ -126,6 +127,16 @@ function Compiler({ selectedProblemId }) {
                     )}
                 </div>
             </div>
+            {submissionResponse && (
+                <div className="submission-response">
+                    <h3>Submission Response</h3>
+                    <ul>
+                        {Object.entries(submissionResponse).map(([testcase, result]) => (
+                            <li key={testcase}>{`${testcase}: ${result}`}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 }
