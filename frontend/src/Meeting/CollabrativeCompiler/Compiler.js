@@ -89,14 +89,14 @@ function Compiler() {
     }
 
     return (
-        <div className="App">
+        <div className="compiler-container">
             <Navbar
                 userLang={userLang} setUserLang={setUserLang}
                 userTheme={userTheme} setUserTheme={setUserTheme}
                 fontSize={fontSize} setFontSize={setFontSize}
             />
             <div className="main">
-                <div className="left-container">
+                <div className="left-container1">
                     <Editor
                         value={userCode}
                         options={options}
@@ -107,12 +107,12 @@ function Compiler() {
                         defaultValue="# Enter your code here"
                         onChange={handleCodeChange}
                     />
-                    <button className="run-btn" onClick={() => compile()}>
+                    <button className="run-btn1" onClick={() => compile()}>
                         Run
                     </button>
                 </div>
-                <div className="right-container">
-                    <h4>Input:</h4>
+                <div className="right-container1">
+                    <h3>Input:</h3>
                     <div className="input-box">
                         <textarea 
                             id="code-inp" 
@@ -120,7 +120,7 @@ function Compiler() {
                             onChange={handleInputChange}
                         ></textarea>
                     </div>
-                    <h4>Output:</h4>
+                    <h3>Output:</h3>
                     {loading ? (
                         <div className="spinner-box">
                             Loading...
@@ -128,7 +128,7 @@ function Compiler() {
                     ) : (
                         <div className="output-box">
                             <pre>{userOutput}</pre>
-                            <button onClick={() => clearOutput()} className="clear-btn">
+                            <button onClick={() => clearOutput()} className="clear-btn1">
                                 Clear
                             </button>
                         </div>

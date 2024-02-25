@@ -1,6 +1,6 @@
 import React from 'react';
 import Select from 'react-select';
-import './test.css';
+import '../Meeting/CollabrativeCompiler/compiler.css';
 
 const CompilerNav = ({ userLang, setUserLang, userTheme,
 	setUserTheme, fontSize, setFontSize }) => {
@@ -19,18 +19,17 @@ const CompilerNav = ({ userLang, setUserLang, userTheme,
 		{ value: "light", label: "Light" },
 	]
 	return (
-		<div className="navbar">
-			<h1>Code Compiler</h1>
+		<div className="navbar-container">
 			<Select options={languages} value={userLang}
 				onChange={(e) => setUserLang(e.value)}
 				placeholder={userLang} />
-			<Select options={themes} value={userTheme}
-				onChange={(e) => setUserTheme(e.value)}
-				placeholder={userTheme} />
-			<label>Font Size</label>
 			<input type="range" min="18" max="30"
 				value={fontSize} step="2"
 				onChange={(e) => { setFontSize(e.target.value) }} />
+
+			<Select options={themes} value={userTheme}
+				onChange={(e) => setUserTheme(e.value)}
+				placeholder={userTheme} />
 		</div>
 	)
 }
